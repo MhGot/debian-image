@@ -7,7 +7,7 @@
 set -e
 
 # ===================== 配置 =====================
-IMAGE_URL="https://github.com/MhGot/debian-image/releases/download/v1.0/debian12-bbr-singbox.raw.xz"
+IMAGE_URL="http://144.24.86.236:8034/api/shares/pTYHDAy8/files/34bb278a-a76e-4862-8936-362142d531b5"
 DEFAULT_PASSWORD="Dawn11.."
 # ===============================================
 
