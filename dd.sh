@@ -33,8 +33,8 @@ echo
 echo "开始重装，请耐心等待..."
 echo "----------------------------------------"
 
-# 执行重装准备
-bash <(curl -sL https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh) \
+# 自动跳过用户名提示（直接回车使用 root）
+printf "\n" | bash <(curl -sL https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh) \
   dd \
   --img="$IMAGE_URL" \
   --password="$PASSWORD"
