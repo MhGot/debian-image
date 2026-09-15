@@ -30,11 +30,18 @@ if [[ "$confirm" == "n" || "$confirm" == "N" ]]; then
 fi
 
 echo
-echo "开始重装，请耐心等待（过程中会自动重启）..."
+echo "开始重装，请耐心等待..."
 echo "----------------------------------------"
 
-# 正确调用方式
+# 执行重装准备
 bash <(curl -sL https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh) \
   dd \
   --img="$IMAGE_URL" \
   --password="$PASSWORD"
+
+echo
+echo "----------------------------------------"
+echo "准备完成，5 秒后自动重启..."
+echo "请稍后重新连接（密码：$PASSWORD）"
+sleep 5
+reboot
