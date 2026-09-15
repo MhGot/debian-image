@@ -1,4 +1,3 @@
-cat > /root/dd.sh << 'EOF'
 #!/bin/bash
 # 专用 Debian 一键重装脚本（已预置 BBR+FQ_PIE + sing-box）
 # 使用方法：
@@ -31,6 +30,3 @@ echo "开始重装，请耐心等待..."
 bash <(curl -sL https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh) \
   --image "$IMAGE_URL" \
   --password "$PASSWORD"
-EOF
-
-chmod +x /root/dd.sh
