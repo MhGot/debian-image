@@ -31,7 +31,7 @@ echo
 echo "开始重装，请耐心等待..."
 echo "----------------------------------------"
 
-# 首次启动要执行的脚本（base64）
+# 首次启动脚本（已修复：先安装基础工具）
 FIRST_BOOT_SCRIPT=$(cat << 'INNER_EOF' | base64 -w 0
 #!/bin/bash
 set -e
@@ -40,27 +40,33 @@ FLAG="/var/lib/first-boot-setup.done"
 
 export DEBIAN_FRONTEND=noninteractive
 
-# 低内存优化
+# 1. 先安装基础工具（解决极简系统问题）
+apt-get update
+apt-get install -y curl wget ca-certificates openssl
+
+# 2. 低内存优化
 MEM_MB=$(free -m | awk '/^Mem:/{print $2}')
 if [ "$MEM_MB" -lt 900 ]; then
+  echo "检测到内存较低，创建临时 1GB swap..."
   fallocate -l 1G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=1024
   chmod 600 /swapfile
   mkswap /swapfile
   swapon /swapfile
 fi
 
+# 3. 预处理 iptables-persistent
 echo "iptables-persistent iptables-persistent/autosave_v4 boolean true" | debconf-set-selections
 echo "iptables-persistent iptables-persistent/autosave_v6 boolean true" | debconf-set-selections
 
-# BBR 自编译内核 + FQ_PIE
+# 4. BBR 自编译内核 + FQ_PIE
 wget -qO /tmp/tcpx.sh https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcpx.sh
 chmod +x /tmp/tcpx.sh
 printf "1\ny\n21\ny\n0\n" | /tmp/tcpx.sh
 
-# sing-box
+# 5. 安装 sing-box
 printf "1\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" | bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/sing-box-yg/main/sb.sh) 2>&1 | tee /root/sb-install.log
 
-# 生成显示信息
+# 6. 生成显示信息
 {
   echo "===== 首次启动安装完成 $(date) ====="
   echo
@@ -74,7 +80,7 @@ printf "1\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" | bash <(wget -qO- https://ra
   echo "完整日志：/root/sb-install.log"
 } > /root/first-boot-info.txt
 
-# 登录提示
+# 7. 登录时自动显示
 cat > /etc/profile.d/00-first-boot-info.sh << 'PROFILE'
 #!/bin/bash
 if [ -f /root/first-boot-info.txt ] && [ ! -f /root/.first-boot-shown ]; then
@@ -86,6 +92,7 @@ fi
 PROFILE
 chmod +x /etc/profile.d/00-first-boot-info.sh
 
+# 8. 清理临时 swap
 if [ -f /swapfile ]; then
   swapoff /swapfile 2>/dev/null || true
   rm -f /swapfile
